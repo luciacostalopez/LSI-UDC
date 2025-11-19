@@ -158,13 +158,6 @@
 
 
 
-### **4.-Obtenga la relación de las direcciones IPv6 de su segmento.**
-
-  1º) Executamos o comando -> `ping6 -c 2 -I ens33 ff02::1` , onde [-c 2] quere decir o nº de ping que faremos, [-I] a interfaz e por ultimo a direccion ipv6 multicast(todos os nodos na LAN)
-    
-  2º) Facemos ->  `ip -6  neigh` . Esto sirve para analizar a cache de ipv6. Si executamos o anterior comando e uns segundos depois, este, indicanos as direccions ipv6 que responderon do noso
-      segmento
-
 
 
 ### **5.-Obtenga el tráfico de entrada y salida legítimo de su interface de red ens33 e investigue los servicios, conexiones y protocolos involucrados.**
@@ -339,25 +332,6 @@
  4º) Executamos o payload -> `./payload.bin`
 
 
-
-### **8.-Haga un MITM en IPv6 y visualice la paquetería**
-
-Para facer un MITM en IPV6 vamos a facelo a través de ndp (Neighbor Discovery Protocol -> protocolo de IPv6). Non se fai con arp xa que non funciona por IPv6
-
-* **ATACANTE:**
-
-   1º)Executamos ettercap -> `ettercap -i ens33 -T -q -M ndp:remote //IPv6_compa/ /10.11.48.1//`.
-
-   2º)En paralelo capturamos a paqueteria -> `tcpdump -i ens33 -s 65535 -w mitmipv6.pcap`
-
-   3º)Analiamos en Wireshark a paqueteria da víctima. Nese archivo, filtramos en Wireshark poñendo 'ipv6' e tendria que aparecer paquetes tipo ICMPv6 que son de ping6
-
-* **VÍCTIMA:**
-
-   1º)Executa unhas cuantas veces un ping6, p.e-> `ping6 -c 2 -I ens33 ff02::1`
-
-
-
 ### **9.-Pruebe alguna herramienta y técnica de detección del sniffing (preferiblemente arpon).**
 
 > IMPORTANTE: si non vamos usar arpOn paramos o servicio `systemctl stop arpon@ens33` e facemos un mask `systemctl mask arpon@ens33`. Si deixamos o servicio activo pode tirarnos a máquina
@@ -389,7 +363,7 @@ Para facer un MITM en IPV6 vamos a facelo a través de ndp (Neighbor Discovery P
 
 
 
-### **10.-Pruebe distintas técnicas de host discovey, port scanning y OS fingerprinting sobre las máquinas del laboratorio de prácticas en IPv4. Realice alguna de las pruebas de port scanning sobre IPv6.**
+### **10.-Pruebe distintas técnicas de host discovey, port scanning y OS fingerprinting sobre las máquinas del laboratorio de prácticas en IPv4.
 
 * Para IPv4:
 
@@ -398,77 +372,6 @@ Para facer un MITM en IPV6 vamos a facelo a través de ndp (Neighbor Discovery P
    port scanning para ver todos os puertos abertos de cada máquina da LAN) -> `nmap -sS 10.11.48.0/23`
 
    OS fingerprinting (para ver o Sistema Operativo das máquinas da LAN) -> `nmap -O 10.11.48.118`
-
-* Para IPv6:
-
-  Este ano mandaronnos facer un script (.sh) para esta parte xa que executando nmap non escaneaba ben as IPV6 (o script vai un pouco lento pero non tiña tempo para optimizalo metendolle threads).
-
-  Acordardarse de darlle permisos de execución ao script -> `chmod -x nombre.sh`
-
-  Códigos do script (crealo donde queiramos):
-
-      #!/bin/bash
-
-      for j in {0..255}; do
-        ipv4="10.11.48.$j"
-        if [[ $j =~ ^[0-9]+$ ]]; then
-      	  if [[ $j -ge 0 && $j -le 15 ]]; then
-            hexadecimal=$(printf "0%x" $j)
-            ipv6="2002:0a0b:30${hexadecimal}::1"
-            echo "IPv4: $ipv4 -> IPv6: $ipv6"
-           else
-            hexadecimal=$(printf "%x" $j)
-            ipv6="2002:0a0b:30${hexadecimal}::1"
-            echo "IPv4: $ipv4 -> IPv6: $ipv6"
-           fi
-        else
-          echo "toma mango"
-        fi
-          nmap -6 -sP "${ipv6}"
-      done
-
-      for j in {0..255}; do
-         ipv4="10.11.49.$j"
-         if [[ $j =~ ^[0-9]+$ ]]; then
-           if [[ $j -ge 0 && $j -le 15 ]]; then
-              hexadecimal=$(printf "0%x" $j)
-              ipv6="2002:0a0b:31${hexadecimal}::1"
-              echo "IPv4: $ipv4 -> IPv6: $ipv6"
-           else
-              hexadecimal=$(printf "%x" $j)
-              ipv6="2002:0a0b:31${hexadecimal}::1"
-               echo "IPv4: $ipv4 -> IPv6: $ipv6"
-           fi
-         else
-             echo "toma mango"
-         fi
-         nmap -6 -sP "${ipv6}"
-      done
-
-  Mensaje que ten que sacar o nmap:
-
-  		.
-		.
-  		IPv4: 10.11.49.73 -> IPv6: 2002:0a0b:3049::1
-		Starting Nmap 7.93 ( https://nmap.org ) at 2023-11-04 16:24 CET
-		Note: Host seems down. If it is really up, but blocking our ping probes, try -Pn
-		Nmap done: 1 IP address (0 hosts up) scanned in 3.04 seconds
-		IPv4: 10.11.49.74 -> IPv6: 2002:0a0b:304a::1
-		Starting Nmap 7.93 ( https://nmap.org ) at 2023-11-04 16:24 CET
-		Nmap scan report for 2002:a0b:304a::1
-		Host is up (0.0020s latency).
-		Nmap done: 1 IP address (1 host up) scanned in 0.04 seconds
-  		.
-  		.
-
-* ¿Coinciden los servicios prestados por un sistema con los de IPv4?.
-
-  Coincide xa que:
-
-  -Encaminamiento de paquetes: IPv4 é responsable de encaminar paquetes de datos desde unha fuente a un destino a través de unha red de routers. Garantiza que os paquetes cheeguen ao seu destino correcto.
-  
-  -Detección de errores: IPv4 inclúe un campo de suma de verificación (checksum) que permite a detección de errores nos paquetes de datos durante o seu tránsito pola rede.
-
 
 
 ### **11.-Obtenga información “en tiempo real” sobre las conexiones de su máquina, así como del ancho de banda consumido en cada una de ellas.**
